@@ -1,5 +1,4 @@
 from copy import copy
-from pickle import FALSE
 # 1.1 Mots:
 
 def pref(mot):
@@ -210,6 +209,48 @@ def deterministe(auto):
 def determinise(auto):
     if deterministe(auto):
         return auto
+    
+    newAuto = {}
+    newAuto['I']=copy([auto['I']])
+    newAuto['F']=copy(auto['F'])
+    newAuto['alphabet']=copy(auto['alphabet'])
+    newAuto['etats']=copy([newAuto["I"]])
+    newAuto['transitions']=[]
+
+    noeudATraiter=copy(newAuto['I'])
+    index=0
+    while True:
+
+        
+        for lettre in newAuto["alphabet"]:
+            
+            etat=lirelettre(auto["transitions"],noeudATraiter[index],lettre)
+
+            if etat!=[]:
+                if [noeudATraiter[index],lettre,etat] not in newAuto["transitions"]:
+                    newAuto["transitions"].append([noeudATraiter[index],lettre,etat])
+                
+                if etat not in newAuto["etats"]:
+                    newAuto["etats"].append(etat)
+                
+                if etat not in noeudATraiter:
+                    noeudATraiter.append(etat)
+                    
+        
+        if index==len(noeudATraiter)-1:
+            break
+
+        index+=1
+            
+        
+   
+    return newAuto
+
+            
+
+
+
+
         
 if __name__=='__main__':
-    print(deterministe(auto))
+    print(determinise(auto))
