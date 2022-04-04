@@ -207,10 +207,9 @@ def determinise(auto):
         return auto
     
     newAuto = {}
-    newAuto['I']=copy([auto['I']])
-    newAuto['F']=copy(auto['F'])
     newAuto['alphabet']=copy(auto['alphabet'])
-    newAuto['etats']=copy([newAuto["I"]])
+    newAuto['I']=copy([auto['I']])
+    newAuto['etats']=copy(newAuto["I"])
     newAuto['transitions']=[]
 
     noeudATraiter=copy(newAuto['I'])
@@ -236,10 +235,15 @@ def determinise(auto):
         if index==len(noeudATraiter)-1:
             break
 
-        index+=1
-            
-        
-   
+        index+=1     
+    
+    newAutoEtatFinal = []
+    for etat in newAuto["etats"]:
+        for etatFinal in auto["F"]:
+            if etatFinal in etat and etat not in newAutoEtatFinal:
+                newAutoEtatFinal.append(etat)
+    
+    newAuto['F']=newAutoEtatFinal
     return newAuto
 
 #3
@@ -301,8 +305,17 @@ def complete(auto):
 
   
 
+    nouvTransi = []
+    for transition in auto["transitions"]:
+        nouvTransi.append([dictRenommage[str(transition[0])],transition[1],dictRenommage[str(transition[2])]])
+
+    return {"alphabet":auto["alphabet"], "etats":nouvEtats, "transitions":nouvTransi , "I":nouvEtatInit, "F":nouvEtatFin}
+    
+            
 
 
+auto2={"alphabet":['a','b'],"etats": [0,1],
+"transitions":[[0,'a',0],[0,'a',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
 
         
 if __name__=='__main__':
