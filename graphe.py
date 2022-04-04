@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 # 1.1 Mots:
 
 def pref(mot):
@@ -59,10 +59,6 @@ def tousmots(lang,taille):
     return langTousMots
     
 #1.3:
-
-auto ={"alphabet":['a','b'],"etats": [1,2,3,4],
-"transitions":[[1,'a',2],[2,'a',2],[2,'b',3],[2,'b',4],[3,'a',4]],
-"I":[1],"F":[4]}
 
 #1.3.1:
 def defauto() : 
@@ -246,11 +242,79 @@ def determinise(auto):
    
     return newAuto
 
+#3
+
+#3.1
+def complet(auto):
+    for etat in auto["etats"]:
+        aVerifier=[]
+
+        for transi in auto["transitions"]:
+            if transi[0]==etat:
+                aVerifier.append(transi)
+        
+        estDedans=False
+        for lettre in auto['alphabet']:
+            for transi in aVerifier:
+                if transi[1]==lettre:
+                    estDedans=True
             
+            if not estDedans:
+                return False
+        
+    return True
+
+#3.2
+def complete(auto):
+
+    if complet(auto):
+        return auto
+
+    newAuto = deepcopy(auto)
+
+    newAuto['etats'].append('LaPOUBELLE')
+
+    for etat in newAuto["etats"]:
+        aVerifier=[]
+
+        for transi in newAuto["transitions"]:
+            if transi[0]==etat:
+                aVerifier.append(transi)
+        
+        print(aVerifier)
+        
+        
+        for lettre in auto['alphabet']:
+            estDedans=False
+            for transi in aVerifier:
+                if transi[1]==lettre:
+                    estDedans=True
+            
+            if not estDedans:
+                newAuto['transitions'].append([etat,lettre,'LaPOUBELLE'])
+
+    return newAuto
+
+        
+        
+
+
+  
 
 
 
 
         
 if __name__=='__main__':
-    print(determinise(auto))
+
+    auto0 ={"alphabet":['a','b'],"etats": [0,1,2,3],
+    "transitions":[[0,'a',1],[1,'a',1],[1,'b',2],[2,'a',3]], "I":[0],"F":[3]}
+
+    auto ={"alphabet":['a','b'],"etats": [1,2,3,4],
+    "transitions":[[1,'a',2],[2,'a',2],[2,'b',3],[2,'b',4],[3,'a',4]],
+    "I":[1],"F":[4]}
+
+    auto1 ={"alphabet":['a','b'],"etats": [0,1],
+    "transitions":[[0,'a',0],[0,'b',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
+
+    print(complete(auto0))
