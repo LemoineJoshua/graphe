@@ -246,6 +246,13 @@ def determinise(auto):
     newAuto['F']=newAutoEtatFinal
     return newAuto
 
+    nouvTransi = []
+    for transition in auto["transitions"]:
+        nouvTransi.append([dictRenommage[str(transition[0])],transition[1],dictRenommage[str(transition[2])]])
+
+    return {"alphabet":auto["alphabet"], "etats":nouvEtats, "transitions":nouvTransi , "I":nouvEtatInit, "F":nouvEtatFin}
+
+
 #3
 
 #3.1
@@ -276,17 +283,15 @@ def complete(auto):
 
     newAuto = deepcopy(auto)
 
-    newAuto['etats'].append('LaPOUBELLE')
+    laPOUBELLE = auto['etats'][-1]+1
+    newAuto['etats'].append(laPOUBELLE)
 
     for etat in newAuto["etats"]:
         aVerifier=[]
 
         for transi in newAuto["transitions"]:
             if transi[0]==etat:
-                aVerifier.append(transi)
-        
-        print(aVerifier)
-        
+                aVerifier.append(transi)       
         
         for lettre in auto['alphabet']:
             estDedans=False
@@ -295,27 +300,44 @@ def complete(auto):
                     estDedans=True
             
             if not estDedans:
-                newAuto['transitions'].append([etat,lettre,'LaPOUBELLE'])
+                newAuto['transitions'].append([etat,lettre,laPOUBELLE])
 
     return newAuto
 
-        
+def complement(auto):
+
+    if complet(auto):
+        newAuto=deepcopy(auto)
+    else:
+        newAuto=complete(auto)
+
+    final=[]
+    initial=[]
+    
+    for  etat in newAuto['etats']:
+        if etat not in newAuto['F']:
+            final.append(etat)
+        if etat not in newAuto['I']:
+            initial.append(etat)
+    
+    print(initial)
+    print(final)
+
+    newAuto['F']=final
+    #newAuto['I']=initial
+
+    return newAuto
         
 
 
   
 
-    nouvTransi = []
-    for transition in auto["transitions"]:
-        nouvTransi.append([dictRenommage[str(transition[0])],transition[1],dictRenommage[str(transition[2])]])
 
-    return {"alphabet":auto["alphabet"], "etats":nouvEtats, "transitions":nouvTransi , "I":nouvEtatInit, "F":nouvEtatFin}
     
             
 
 
-auto2={"alphabet":['a','b'],"etats": [0,1],
-"transitions":[[0,'a',0],[0,'a',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
+
 
         
 if __name__=='__main__':
@@ -330,4 +352,10 @@ if __name__=='__main__':
     auto1 ={"alphabet":['a','b'],"etats": [0,1],
     "transitions":[[0,'a',0],[0,'b',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
 
-    print(complete(auto0))
+    auto2={"alphabet":['a','b'],"etats": [0,1],
+    "transitions":[[0,'a',0],[0,'a',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
+
+    auto3 ={"alphabet":['a','b'],"etats": [0,1,2,],
+    "transitions":[[0,'a',1],[0,'a',0],[1,'b',2],[1,'b',1]], "I":[0],"F":[2]}
+
+    print(complement(auto3))
