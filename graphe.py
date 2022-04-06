@@ -325,6 +325,7 @@ def complete(auto):
 
     return newAuto
 
+#3.3
 def complement(auto):
 
     if complet(auto):
@@ -345,12 +346,39 @@ def complement(auto):
     print(final)
 
     newAuto['F']=final
-    #newAuto['I']=initial
 
     return newAuto
         
+#4
+def prod(auto1, auto2):
+    newAuto={}
+    newAuto["I"]=copy(auto1["I"])+copy(auto2["I"])
+    newAuto["F"]=copy(auto1["F"])+copy(auto2["F"])
+    newAuto["etats"]=copy(auto1["etats"])+copy(auto2["etats"])
+    newAuto["alphabet"]=copy(auto1["alphabet"])+copy(auto2["alphabet"])
+    newAuto["transitions"]=copy(auto1["transitions"])+copy(auto2["transitions"])
 
+    return determinise(newAuto)
 
+#4.1
+def inter(auto1,auto2):
+    newAuto = prod(auto1,auto2)
+
+    final=[]
+    initial=[]
+    for etat in newAuto["etats"]:
+        print(etat)
+        if len(etat)>0:
+            if (etat[0] in auto1["I"]) and (etat[1] in auto2["I"]):
+                initial.append(etat)
+            
+            if (etat[0] in auto1["F"]) and (etat[1] in auto2["F"]):
+                final.append(etat)
+        
+    newAuto["I"]=initial
+    newAuto["F"]=final
+
+    return newAuto
 
         
 if __name__=='__main__':
@@ -371,5 +399,11 @@ if __name__=='__main__':
     auto3 ={"alphabet":['a','b'],"etats": [0,1,2,],
     "transitions":[[0,'a',1],[0,'a',0],[1,'b',2],[1,'b',1]], "I":[0],"F":[2]}
 
-    #print(complement(auto3))
-    print(renommage(determinise(auto2)))
+    auto4 ={"alphabet":['a','b'],"etats": [0,1,2,],
+    "transitions":[[0,'a',1],[1,'b',2],[2,'b',2],[2,'a',2]], "I":[0],"F":[2]}
+
+    auto5 ={"alphabet":['a','b'],"etats": [0,1,2],
+    "transitions":[[0,'a',0],[0,'b',1],[1,'a',1],[1,'b',2],[2,'a',2],[2,'b',0]],
+    "I":[0],"F":[0,1]}
+
+    print(inter(auto4,auto5))
