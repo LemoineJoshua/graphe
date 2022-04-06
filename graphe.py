@@ -246,12 +246,33 @@ def determinise(auto):
     newAuto['F']=newAutoEtatFinal
     return newAuto
 
+#2.3
+def renommage(auto):
+    dictRenommage = {}
+    nouvEtat = 0
+    for etat in auto["etats"]:
+        dictRenommage[str(etat)]=nouvEtat
+        nouvEtat+=1
+    
+    print(dictRenommage)
+    
+    nouvEtatInit = []
+    for etat in auto["I"]:
+        nouvEtatInit.append(dictRenommage[str(etat)])
+
+    nouvEtatFin = []
+    for etat in auto["F"]:
+        nouvEtatFin.append(dictRenommage[str(etat)])
+
+    nouvEtats = []
+    for etat in auto["etats"]:
+        nouvEtats.append(dictRenommage[str(etat)])
+
     nouvTransi = []
     for transition in auto["transitions"]:
         nouvTransi.append([dictRenommage[str(transition[0])],transition[1],dictRenommage[str(transition[2])]])
 
     return {"alphabet":auto["alphabet"], "etats":nouvEtats, "transitions":nouvTransi , "I":nouvEtatInit, "F":nouvEtatFin}
-
 
 #3
 
@@ -330,14 +351,6 @@ def complement(auto):
         
 
 
-  
-
-
-    
-            
-
-
-
 
         
 if __name__=='__main__':
@@ -358,4 +371,5 @@ if __name__=='__main__':
     auto3 ={"alphabet":['a','b'],"etats": [0,1,2,],
     "transitions":[[0,'a',1],[0,'a',0],[1,'b',2],[1,'b',1]], "I":[0],"F":[2]}
 
-    print(complement(auto3))
+    #print(complement(auto3))
+    print(renommage(determinise(auto2)))
