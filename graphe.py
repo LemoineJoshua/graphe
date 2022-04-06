@@ -254,8 +254,6 @@ def renommage(auto):
         dictRenommage[str(etat)]=nouvEtat
         nouvEtat+=1
     
-    print(dictRenommage)
-    
     nouvEtatInit = []
     for etat in auto["I"]:
         nouvEtatInit.append(dictRenommage[str(etat)])
@@ -348,7 +346,23 @@ def complement(auto):
     newAuto['F']=final
 
     return newAuto
-        
+
+def complement2(auto):  
+    auto=renommage(determinise(auto))
+
+    if complet(auto):
+        newAuto=deepcopy(auto)
+    else:
+        newAuto=complete(auto)
+
+    final=[]
+    
+    for  etat in newAuto['etats']:
+        if etat not in newAuto['F']:
+            final.append(etat)
+    newAuto['F']=final
+
+    return newAuto   
 #4
 def prod(auto1, auto2):
     newAuto={}
@@ -357,7 +371,7 @@ def prod(auto1, auto2):
     newAuto["etats"]=copy(auto1["etats"])+copy(auto2["etats"])
     newAuto["alphabet"]=copy(auto1["alphabet"])+copy(auto2["alphabet"])
     newAuto["transitions"]=copy(auto1["transitions"])+copy(auto2["transitions"])
-
+    print(newAuto)
     return determinise(newAuto)
 
 #4.1
@@ -405,5 +419,6 @@ if __name__=='__main__':
     auto5 ={"alphabet":['a','b'],"etats": [0,1,2],
     "transitions":[[0,'a',0],[0,'b',1],[1,'a',1],[1,'b',2],[2,'a',2],[2,'b',0]],
     "I":[0],"F":[0,1]}
-
-    print(inter(auto4,auto5))
+    #print(complement2(auto3))
+    #print(prod(auto4,auto5))
+    #print(inter(auto4,auto5))
