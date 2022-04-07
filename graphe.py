@@ -324,30 +324,7 @@ def complete(auto):
     return newAuto
 
 #3.3
-def complement(auto):
-
-    if complet(auto):
-        newAuto=deepcopy(auto)
-    else:
-        newAuto=complete(auto)
-
-    final=[]
-    initial=[]
-    
-    for  etat in newAuto['etats']:
-        if etat not in newAuto['F']:
-            final.append(etat)
-        if etat not in newAuto['I']:
-            initial.append(etat)
-    
-    print(initial)
-    print(final)
-
-    newAuto['F']=final
-
-    return newAuto
-
-def complement2(auto):  
+def complement(auto):  
     auto=renommage(determinise(auto))
 
     if complet(auto):
