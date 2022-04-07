@@ -1,4 +1,6 @@
 from copy import copy, deepcopy
+
+from numpy import true_divide
 # 1.1 Mots:
 
 def pref(mot):
@@ -340,38 +342,135 @@ def complement(auto):
     newAuto['F']=final
 
     return newAuto   
+
 #4
-def prod(auto1, auto2):
+def prod(auto1,auto2):
     newAuto={}
-    newAuto["I"]=copy(auto1["I"])+copy(auto2["I"])
-    newAuto["F"]=copy(auto1["F"])+copy(auto2["F"])
-    newAuto["etats"]=copy(auto1["etats"])+copy(auto2["etats"])
-    newAuto["alphabet"]=copy(auto1["alphabet"])+copy(auto2["alphabet"])
-    newAuto["transitions"]=copy(auto1["transitions"])+copy(auto2["transitions"])
-    print(newAuto)
-    return determinise(newAuto)
+    newAuto["I"] = [(auto1["I"][0],auto2["I"][0])]
+    newAuto["F"] = []
+    newAuto["etats"]=[(auto1["I"][0],auto2["I"][0])]
+    alphabet = list(set(copy(auto1["alphabet"]+auto2["alphabet"])))
+    alphabet.sort()
+    newAuto["alphabet"] = alphabet
+    newAuto["transitions"]=[]
 
-#4.1
-def inter(auto1,auto2):
-    newAuto = prod(auto1,auto2)
-
-    final=[]
-    initial=[]
-    for etat in newAuto["etats"]:
-        print(etat)
-        if len(etat)>0:
-            if (etat[0] in auto1["I"]) and (etat[1] in auto2["I"]):
-                initial.append(etat)
-            
-            if (etat[0] in auto1["F"]) and (etat[1] in auto2["F"]):
-                final.append(etat)
+    aVerifier = copy(newAuto["I"])
+    while len(aVerifier)!=0:
+        Etat1 = aVerifier[-1][0]
+        Etat2 = aVerifier[-1][1]
+        aVerifier.pop()
+        for lettre in newAuto["alphabet"]:
+            Etat1Tmp = lirelettre(auto1["transitions"],[Etat1],lettre)
+            Etat2Tmp = lirelettre(auto2["transitions"],[Etat2],lettre)
+            if len(Etat1Tmp)!=0 and len(Etat2Tmp)!=0:
+                newEtat1 = Etat1Tmp[0]
+                newEtat2 = Etat2Tmp[0]
+                if (newEtat1,newEtat2) not in newAuto["etats"]:
+                    aVerifier.append((newEtat1,newEtat2))
+                    newAuto["etats"].append((newEtat1,newEtat2))
+                newAuto["transitions"].append([(Etat1,Etat2),lettre,(newEtat1,newEtat2)])
         
-    newAuto["I"]=initial
-    newAuto["F"]=final
-
     return newAuto
 
+#4.1
+
+def inter(auto1, auto2):
+    newAuto=prod(auto1,auto2)
+    for etat in newAuto["etats"]:
+        if etat[0] in auto1["F"] and etat[1] in auto2["F"]:
+            newAuto["F"].append((etat[0],etat[1]))
+    return newAuto
+
+#4.2
+
+def difference(auto1, auto2):
+    if (not complet(auto1)):
+        auto1=complete(auto1)
+
+    if (not complet(auto2)):
+        auto2=complete(auto2)
+
+    newAuto = prod(auto1,auto2)
+
+    for etat in newAuto["etats"]:
+        if etat[0] in auto1["F"] and etat[1] not in auto2["F"]:
+            newAuto["F"].append((etat[0],etat[1]))
+    return newAuto
+
+#5 
+
+def EtatsCoaccessibles(auto):
+    index = 0
+    etatsCoaccessibles = copy(auto["F"])
+    while index <len(etatsCoaccessibles):
+        for transition in auto["transitions"]:
+            if transition[2]==etatsCoaccessibles[index] and transition[0] not in etatsCoaccessibles:
+                etatsCoaccessibles.append(transition[0])
+        index+=1
+    return etatsCoaccessibles
+
+def EtatsAccessibles(auto):
+    index = 0
+    EtatsAccessibles = copy(auto["I"])
+    while index <len(EtatsAccessibles):
+        for transition in auto["transitions"]:
+            if transition[0]==EtatsAccessibles[index] and transition[2] not in EtatsAccessibles:
+                EtatsAccessibles.append(transition[2])
+        index+=1
+    return EtatsAccessibles
+
+
+def emondage(auto):
+    newAuto = deepcopy(auto)
+    etatsAccesibles = EtatsAccessibles(auto)
+    etatsCoaccessibles = EtatsCoaccessibles(auto)
+    
+    for etat in auto["etats"]:
+        if (etat not in etatsAccesibles) or (etat not in etatsCoaccessibles):
+            newAuto["etats"].remove(etat)
+
+    for transition in auto["transitions"]:
+        if (transition[0] not in newAuto["etats"]) or (transition[2] not in newAuto["etats"]):
+            newAuto["transitions"].remove(transition)    
         
+    return newAuto
+
+#5.1
+
+def prefixe(auto):
+    auto=emondage(auto)
+    newAuto=deepcopy(auto)
+    newAuto["F"]=copy(newAuto["etats"])
+    return newAuto
+
+#5.2
+
+def suffixe(auto):
+    auto=emondage(auto)
+    newAuto=deepcopy(auto)
+    newAuto["I"]=copy(newAuto["etats"])
+    return newAuto
+
+#5.3
+def facteur(auto):
+    auto=emondage(auto)
+    newAuto=deepcopy(auto)
+    newAuto["I"]=copy(newAuto["etats"])
+    newAuto["F"]=copy(newAuto["etats"])
+    return newAuto
+
+#5.4
+def mirroir(auto):
+    newAuto={}
+    newAuto["alphabet"]=copy(auto["alphabet"])
+    newAuto["etats"]=copy(auto["etats"])
+    newAuto["I"]=copy(auto["F"])
+    newAuto["F"]=copy(auto["I"])
+    newAuto["transitions"]=[]
+    for transition in auto["transitions"]:
+        newAuto["transitions"].append([transition[2],transition[1],transition[0]])
+    return newAuto
+
 if __name__=='__main__':
 
     auto0 ={"alphabet":['a','b'],"etats": [0,1,2,3],
@@ -396,6 +495,17 @@ if __name__=='__main__':
     auto5 ={"alphabet":['a','b'],"etats": [0,1,2],
     "transitions":[[0,'a',0],[0,'b',1],[1,'a',1],[1,'b',2],[2,'a',2],[2,'b',0]],
     "I":[0],"F":[0,1]}
-    #print(complement2(auto3))
+
+    auto6 ={"alphabet":['a','b'],"etats": [0,1,2,3,4,5],
+    "transitions":[[0,'a',1],[1,'b',2],[3,'a',3], [0,'a',4], [5,'b',2]],
+    "I":[0],"F":[2]}
+    
+    auto7 ={"alphabet":['a','b'], "etats":[1,2,3,4,5], "I":[1],"F":[4,5],"transitions":[[1,'a',1],[1,'a',2],[2,'a',5],[2,'b',3],[5,'b',5],[3,'b',3],[3,'a',4]]}
+    #print(complement(auto3))
     #print(prod(auto4,auto5))
-    #print(inter(auto4,auto5))
+    #print(renommage(inter(auto4,auto5)))
+
+    #print(renommage(difference(auto4,auto5)))
+
+    #print(emondage(auto6))
+    print(mirroir(auto7))
