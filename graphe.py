@@ -1,6 +1,4 @@
 from copy import copy, deepcopy
-
-from numpy import true_divide
 # 1.1 Mots:
 
 def pref(mot):
