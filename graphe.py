@@ -45,9 +45,6 @@ def puis(lang,nombre):
         save=copy(concat)
     return concat
 
-            
-    return retour
-
     # 1.2.3 On ne peut faire la fonction calculant l'étoile d'un langage car elle 
     # tourenerai à l'infini et ne renverrai donc rien
 
@@ -343,6 +340,7 @@ def complement(auto):
 
 #4
 def prod(auto1,auto2):
+  
     newAuto={}
     newAuto["I"] = [(auto1["I"][0],auto2["I"][0])]
     newAuto["F"] = []
@@ -469,6 +467,119 @@ def mirroir(auto):
         newAuto["transitions"].append([transition[2],transition[1],transition[0]])
     return newAuto
 
+#6
+def accesible(auto):
+    etatsAccessibles = EtatsAccessibles(auto)
+    etatsCorriges = []
+    
+    for etat in auto["etats"]:
+        if (etat not in etatsAccessibles) and (etat not in auto["I"]):
+            continue
+        etatsCorriges.append(etat)
+    auto["etats"]=etatsCorriges
+    
+    return auto
+
+def premiereDecoupe(auto):
+    etatsMini=[auto["F"]]
+    temporaire=[]
+    
+    for etat in auto["etats"]:
+        if etat not in auto["F"]:
+            temporaire.append(etat)
+    
+    etatsMini.append(temporaire)
+    
+    return etatsMini
+    
+def equivalent(listeEquivPre,auto):
+    listeEquivFin = []
+    #print('u')
+    #print(listeEquivPre)
+    for liste in listeEquivPre:
+        triage={}
+
+        if len(liste)==1:
+            listeEquivFin.append(liste)
+            continue
+        
+        for etat in liste:
+            value={}
+            for lettre in auto["alphabet"]:
+               etatTmp = lirelettre(auto["transitions"],[etat],lettre)
+               for classeEquiv in listeEquivPre:
+                   if etatTmp[0] in classeEquiv:
+                       classe = classeEquiv
+                       break
+               value[lettre]=tuple(classe)
+            
+            assos=False
+            #print("dico triage : "+str(triage))
+            for key,values in triage.items():
+                if values==value:
+                    assos=True
+
+                    newkey=[]
+                    for elem in key:
+                        newkey.append(elem)
+                    newkey.append(etat)
+
+                    triage[tuple(newkey)]=values
+                    triage.pop(key)
+                    break
+
+            if not assos:
+                triage[tuple([etat])]=value
+                #print("dico triage après ajout: "+str(triage))
+        
+        for key in triage.keys():
+            listeEquivFin.append(list(key))
+    #print("Ma liste liste equiv fin:"+ str(listeEquivFin))
+    return listeEquivFin        
+               
+def minimise(auto):
+    newAuto = {}
+    newAuto["alphabet"]=deepcopy(auto["alphabet"])
+    ListeEquiv = premiereDecoupe(auto)
+    ListeEquivPre=[]
+    
+    while ListeEquiv != ListeEquivPre:
+        ListeEquivPre = ListeEquiv
+        ListeEquiv = equivalent(ListeEquivPre,auto)
+        print(str(ListeEquiv) + " et " +str(ListeEquivPre))
+
+    newAuto["etats"] =ListeEquiv
+    
+    ListeEtatFinaux=[]
+    for etat in auto["F"]:
+        for classe in newAuto["etats"]:
+            if etat in classe and classe not in ListeEtatFinaux:
+                ListeEtatFinaux.append(classe)
+    newAuto["F"] = ListeEtatFinaux
+
+    EtatInitial=[]
+    for classe in newAuto["etats"]:
+        if auto["I"][0] in classe:
+            EtatInitial.append(classe)
+            break
+    newAuto["I"] = EtatInitial
+
+    newAuto["transitions"]=[]
+    for classe in newAuto["etats"]:
+        etat = classe[0]
+        for lettre in newAuto["alphabet"]:
+            etatArrivee = lirelettre(auto["transitions"],[etat],lettre)
+            if len(etatArrivee)!=0:
+                for classeEqui in newAuto["etats"]:
+                    if etatArrivee[0] in classeEqui:
+                        newAuto["transitions"].append([classe,lettre,classeEqui])
+                        break
+    return newAuto 
+
+
+
+
+
 if __name__=='__main__':
 
     auto0 ={"alphabet":['a','b'],"etats": [0,1,2,3],
@@ -499,6 +610,10 @@ if __name__=='__main__':
     "I":[0],"F":[2]}
     
     auto7 ={"alphabet":['a','b'], "etats":[1,2,3,4,5], "I":[1],"F":[4,5],"transitions":[[1,'a',1],[1,'a',2],[2,'a',5],[2,'b',3],[5,'b',5],[3,'b',3],[3,'a',4]]}
+    
+    auto8 ={"alphabet":['a','b'],"etats": [0,1,2,3,4,5],"transitions":[[0,'a',4],[0,'b',3],[1,'a',5],[1,'b',5],[2,'a',5],[2,'b',2],[3,'a',1],[3,'b',0],[4,'a',1],[4,'b',2],[5,'a',2],[5,'b',5]],"I":[0],"F":[0,1,2,5]}
+
+    
     #print(complement(auto3))
     #print(prod(auto4,auto5))
     #print(renommage(inter(auto4,auto5)))
@@ -506,4 +621,5 @@ if __name__=='__main__':
     #print(renommage(difference(auto4,auto5)))
 
     #print(emondage(auto6))
-    print(mirroir(auto7))
+    #print(mirroir(auto7))
+    print(renommage(minimise(auto8)))
