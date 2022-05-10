@@ -573,7 +573,7 @@ def equivalent(listeEquivPre,auto):
             for lettre in auto["alphabet"]: #pour chacune des lettres de l'alphabet
                etatTmp = lirelettre(auto["transitions"],[etat],lettre)#on regarde la classe d'equivalence dans laquel arrive l'etat en lisant la lettre
                for classeEquiv in listeEquivPre:
-                   if etatTmp[0] in classeEquiv:
+                   if len(etatTmp)>0 and (etatTmp[0] in classeEquiv):
                        classe = classeEquiv
                        break
                value[lettre]=tuple(classe) #a chacune des lettres on associe la classe d'equivalence de l'etat
@@ -646,41 +646,52 @@ def minimise(auto):
 
 if __name__=='__main__':
 
+    #données de test
     auto0 ={"alphabet":['a','b'],"etats": [0,1,2,3],
     "transitions":[[0,'a',1],[1,'a',1],[1,'b',2],[2,'a',3]], "I":[0],"F":[3]}
-
     auto ={"alphabet":['a','b'],"etats": [1,2,3,4],
     "transitions":[[1,'a',2],[2,'a',2],[2,'b',3],[2,'b',4],[3,'a',4]],
     "I":[1],"F":[4]}
-
     auto1 ={"alphabet":['a','b'],"etats": [0,1],
     "transitions":[[0,'a',0],[0,'b',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
-
     auto2={"alphabet":['a','b'],"etats": [0,1],
     "transitions":[[0,'a',0],[0,'a',1],[1,'b',1],[1,'a',1]], "I":[0],"F":[1]}
-
     auto3 ={"alphabet":['a','b'],"etats": [0,1,2,],
     "transitions":[[0,'a',1],[0,'a',0],[1,'b',2],[1,'b',1]], "I":[0],"F":[2]}
-
     auto4 ={"alphabet":['a','b'],"etats": [0,1,2,],
     "transitions":[[0,'a',1],[1,'b',2],[2,'b',2],[2,'a',2]], "I":[0],"F":[2]}
-
     auto5 ={"alphabet":['a','b'],"etats": [0,1,2],
     "transitions":[[0,'a',0],[0,'b',1],[1,'a',1],[1,'b',2],[2,'a',2],[2,'b',0]],
     "I":[0],"F":[0,1]}
-
     auto6 ={"alphabet":['a','b'],"etats": [0,1,2,3,4,5],
     "transitions":[[0,'a',1],[1,'b',2],[3,'a',3], [0,'a',4], [5,'b',2]],
-    "I":[0],"F":[2]}
-    
+    "I":[0],"F":[2]} 
     auto7 ={"alphabet":['a','b'], "etats":[1,2,3,4,5], "I":[1],"F":[4,5],"transitions":[[1,'a',1],[1,'a',2],[2,'a',5],[2,'b',3],[5,'b',5],[3,'b',3],[3,'a',4]]}
-    
     auto8 ={"alphabet":['a','b'],"etats": [0,1,2,3,4,5],"transitions":[[0,'a',4],[0,'b',3],[1,'a',5],[1,'b',5],[2,'a',5],[2,'b',2],[3,'a',1],[3,'b',0],[4,'a',1],[4,'b',2],[5,'a',2],[5,'b',5]],"I":[0],"F":[0,1,2,5]}
-
     #print(complement(auto3))
     #print(prod(auto4,auto5))
     #print(renommage(inter(auto4,auto5)))
     #print(renommage(difference(auto4,auto5)))
     #print(emondage(auto6))
     #print(mirroir(auto7))
-    print(renommage(minimise(auto8)))
+    #print(renommage(minimise(auto8)))
+
+
+    #automates de la soutenance
+    autoSout1={"alphabet":['a','b'],"etats": [1,2,3,4],"transitions":[[1,'a',2],[1,'b',2],[2,'b',1],[2,'a',4],[4,'a',2],[3,'b',4],[4,'b',3]],"I":[1,4],"F":[3,4]}
+    autoSout2={"alphabet":['a','b'],"etats": [0,1],"transitions":[[0,'a',0],[1,'a',1],[1,'b',0],[0,'b',1]],"I":[0],"F":[0]}
+    autoSout3={"alphabet":['a','b'],"etats": [0,1,2],"transitions":[[0,'b',0],[0,'a',1],[1,'b',1],[1,'a',2],[2,'b',2],[2,'a',0]],"I":[0],"F":[0]}
+    autoSout4={"alphabet":['a','b'],"etats": [1,2,3,4,5,6],"transitions":[[1,'a',2],[1,'b',2],[2,'a',3],[2,'b',4],[4,'a',3],[3,'a',4],[3,'b',5],[5,'b',5],[4,'b',6],[6,'a',5],[5,'a',6],[6,'b',6]],"I":[1],"F":[5,6]}
+
+    print("---DETERMINISATION---")
+    print(renommage(determinise(autoSout1)))
+
+    print("\n---INTERSECTION---")
+    print(renommage(inter(autoSout2,autoSout3)))
+
+    print("\n---MINIMISATION---")
+    print(renommage(minimise(autoSout4)))
+
+    
+    
+    
